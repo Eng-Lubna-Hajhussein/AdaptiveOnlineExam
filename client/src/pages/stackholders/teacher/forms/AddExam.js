@@ -87,24 +87,26 @@ export default function AddExam() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const fields = new FormData(event.currentTarget);
-    
+
     const headers = {
       method: "POST",
       body: JSON.stringify({
         teacherID: appState.userInfo.teacherID,
         startDate: startDate["$d"],
         endDate: endDate["$d"],
-        duration: fields.get("hours")*3600+fields.get("minutes")*60+fields.get("seconds"),
+        duration:
+          fields.get("hours") * 3600 +
+          fields.get("minutes") * 60 +
+          fields.get("seconds"),
         attemptsAllowed: fields.get("attemptsAllowed"),
-        title:fields.get("title"),
-        description:fields.get("description")
+        title: fields.get("title"),
+        description: fields.get("description"),
       }),
       headers: {
         "Content-Type": "application/json",
       },
     };
     const response = await fetchData("http://localhost:4000/exam", headers);
-
   };
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -143,7 +145,7 @@ export default function AddExam() {
                 </Typography>
               </Grid>
               <Box component="form" onSubmit={handleSubmit}>
-              <CssTextField
+                <CssTextField
                   margin="normal"
                   required
                   fullWidth
@@ -153,7 +155,7 @@ export default function AddExam() {
                   autoComplete="title"
                   autoFocus
                 />
-                              <CssTextField
+                <CssTextField
                   margin="normal"
                   required
                   fullWidth

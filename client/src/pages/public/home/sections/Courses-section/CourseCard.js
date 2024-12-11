@@ -1,38 +1,82 @@
 import React from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  Button,
+  SvgIcon,
+} from "@basetoolkit/ui";
 
 const CourseCard = (props) => {
   const { imgUrl, title, lesson, students, rating } = props.item;
 
   return (
-    <div className="single__course__item">
-      <div className="course__img">
-        <img src={imgUrl} alt="" className="w-100" />
-      </div>
-
-      <div className="course__details">
-        <h6 className="course__title mb-4">{title}</h6>
-
-        <div className=" d-flex justify-content-between align-items-center">
-          <p className="lesson d-flex align-items-center gap-1">
-            <i class="ri-book-open-line"></i> {lesson} Lessons
-          </p>
-
-          <p className="students d-flex align-items-center gap-1">
-            <i class="ri-user-line"></i> {students}K
-          </p>
-        </div>
-
-        <div className=" d-flex justify-content-between align-items-center">
-          <p className="rating d-flex align-items-center gap-1">
-            <i class="ri-star-fill"></i> {rating}K
-          </p>
-
-          <p className="enroll d-flex align-items-center gap-1">
-            <a href="#"> Enroll Now</a>
-          </p>
-        </div>
-      </div>
-    </div>
+    <Card
+    
+      sx={{
+        borderRadius: 2,
+        boxShadow: 2,
+        overflow: "hidden",
+        width:"100%",
+        "&:hover": { boxShadow: 4 },
+      }}
+    >
+      <CardMedia
+        component="img"
+        image={imgUrl}
+        alt={title}
+        sx={{ height: 180 }}
+      />
+      <CardContent>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{ fontWeight: "bold", mb: 2 }}
+        >
+          {title}
+        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            variant="body2"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <SvgIcon icon="book_online" size="small" /> {lesson} Lessons
+          </Typography>
+          <Typography
+            variant="body2"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <SvgIcon icon="people_outline" size="small" /> {students}K
+          </Typography>
+        </Box>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mt={2}
+        >
+          <Typography
+            variant="body2"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <SvgIcon icon="star_rate" size="small" color="#FFC107" /> {rating}K
+          </Typography>
+          <Typography variant="body2" color="primary">
+            <Button variant="text" size="small" href="#">
+              Enroll Now
+            </Button>
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 

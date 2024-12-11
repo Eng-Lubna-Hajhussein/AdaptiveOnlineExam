@@ -1,168 +1,107 @@
-import { useState, useContext, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, makeStyles, ThemeProvider } from "@mui/material/styles";
-import { withStyles } from "@mui/styles";
-import useFetch from "../../../../hooks/useFetch";
+import React, { useContext } from "react";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Box,
+  Typography,
+  Container,
+  Snackbar,
+  SvgIcon,
+} from "@basetoolkit/ui";
 import { AppContext } from "../../../../contextapi/contexts/AppContext";
 import Header from "../../header/Header";
-import validator from "validator";
 import { Link, useNavigate } from "react-router-dom";
-import LockOpenIcon from '@mui/icons-material/LockOpen';
+import { useForm, Controller } from "@basetoolkit/ui/form";
 import loginImg from "../../../../assets/teacher-signup.svg";
-import Swal from "sweetalert2";
+import Copyright from "../../Copyright/Copyright";
+import useFetch from "../../../../hooks/useFetch";
 
-const CssTextField = withStyles({
-  root: {
-    "& label.Mui-focused": {
-      color: "#3c7e54",
-    },
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "yellow",
-    },
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "#3c7e54",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#3c7e54",
-      },
-    },
-  },
-})(TextField);
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
-
-export default function Signup() {
+export default function TeacherLogin() {
   const { appState, appDispatch } = useContext(AppContext);
-  const [loading, setLoading] = useState(false);
-  const [{ data, isLoading, isError }, fetchData] = useFetch();
-  const navigate = useNavigate();
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
+  const [{}, fetchData] = useFetch();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [loading, setLoading] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    severity: "success",
   });
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log({ appState });
-  }, [appState]);
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const fields = new FormData(event.currentTarget);
-    const email = fields.get("email").trim();
-    const password = fields.get("password").trim();
-    let validErrors = {
-      email: "",
-      password: "",
-    };
+  const onSubmit = async (data) => {
+    const { email, password } = data;
+
+    console.log({ email }, { password });
+
     try {
-      if (!validator.isEmail(email)) {
-        validErrors = {
-          ...validErrors,
-          ["email"]: "(invalid email):email syntax must be user@gmail.com",
-        };
-      }
-      if (password.length < 8) {
-        validErrors = {
-          ...validErrors,
-          ["password"]:
-            "(weak password):your password must be at least 8 characters",
-        };
-      }
-      setErrors({...validErrors});
-      if (
-        validator.isEmail(email) &&
-        password.length > 7 
-      ) {
-        const headers = {
-          method: "POST",
-          withCredentials: true,
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-        setLoading(true);
-        const response = await fetchData(
-          "http://localhost:4000/teachers/login",
-          headers
-        );
-        if(response.errors){
-          console.log(response.errors);
-          if(response.errors.email.en){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: `<h5>${response.errors.email[appState.lang]}</h5>`,
-              footer: `<a href="">Why do I have this issue?</a>`
-            })
-          }
-          else 
-          if(response.errors.password.en){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: `<h5>${response.errors.password[appState.lang]}</h5>`,
-              footer: `<a href="">Why do I have this issue?</a>`
-            })
-          }
-        }else{
-          setLoading(false);
-          appDispatch({
-            type: "GET_USERINFO",
-            userInfo: { teacherID: response.user },
-          });
-          navigate(`/teacher/account`);
-        }
+      setLoading(true);
+      const headers = {
+        method: "POST",
+        withCredentials: true,
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      setLoading(true);
+      const response = await fetchData(
+        "http://localhost:4000/teachers/login",
+        headers
+      );
+      
+      setLoading(false);
+
+      if (response.errors) {
+        const errorMessage =
+          response.errors.email?.[appState.lang] ||
+          response.errors.password?.[appState.lang] ||
+          "An error occurred.";
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
+      } else {
+        setLoading(false);
+        appDispatch({
+          type: "GET_USERINFO",
+          userInfo: { teacherID: response.user },
+        });
+        navigate(`/teacher/account`);
       }
     } catch (error) {
-      console.log({ error });
+      console.error(error);
+      setLoading(false);
+      setSnackbar({
+        open: true,
+        message: "An unexpected error occurred.",
+        severity: "error",
+      });
     }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       <Container>
         <CssBaseline />
         <Grid container>
-          <Grid item xs="6">
-            <img src={loginImg} />
+          <Grid item xs={6}>
+            <img src={loginImg} alt="Teacher Login" />
           </Grid>
-          <Grid item xs="6">
+          <Grid item xs={6}>
             <Box
               sx={{
                 marginTop: 5,
@@ -171,71 +110,80 @@ export default function Signup() {
                 alignItems: "center",
               }}
             >
-              <Grid
-                item
-                xs="12"
-                container
-                justifyContent={"center"}
-                alignItems={"center"}
+              <SvgIcon
+                icon="lock_open"
+                fontSize={55}
+                color="black"
+                variant="filled"
+              />
+              <Typography
+                style={{
+                  color: "#e92239",
+                  fontWeight: "600",
+                  marginBottom: "25px",
+                  fontSize: "25px",
+                }}
               >
-                <LockOpenIcon sx={{ fontSize: "55px" }} />
-              </Grid>
-              <Grid
-                item
-                xs="12"
-                container
-                justifyContent={"center"}
-                alignItems={"center"}
+                TEACHER LOGIN!
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
+                width="100%"
+                px={5}
               >
-                <Typography
-                  style={{
-                    color: "#e92239",
-                    fontWeight: "600",
-                    marginBottom: "25px",
-                    fontSize: "25px",
-                  }}
-                >
-                 TEACHER LOGIN!
-                </Typography>
-              </Grid>
-              <Box component="form" onSubmit={handleSubmit}>
-                <CssTextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
+                <Controller
                   name="email"
-                  autoComplete="email"
-                  autoFocus
-                  onChange={(e)=>{
-                    if(validator.isEmail(e.target.value)){
-                      setErrors({...errors,["email"]:""})
-                    }
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Email is required." },
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email address.",
+                    },
                   }}
-                  error={!!errors.email.length}
-                  helperText={!!errors.email.length? errors.email: ''}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="email"
+                      label="Email Address"
+                      error={!!errors?.email?.message}
+                      helperText={errors.email?.message}
+                    />
+                  )}
                 />
-                <CssTextField
-                  margin="normal"
-                  required
-                  fullWidth
+                <Controller
                   name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  autoFocus
-                  onChange={(e)=>{
-                    if(e.target.value.length>7){
-                      setErrors({...errors,["password"]:""})
-                    }
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Password is required." },
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters long.",
+                    },
                   }}
-                  error={!!errors.password.length}
-                  helperText={!!errors.password.length? errors.password: ''}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      margin="normal"
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                      error={!!errors?.password?.message}
+                      helperText={errors.password?.message}
+                    />
+                  )}
                 />
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="success" />}
+                  control={<Checkbox size="large" color="success" />}
                   label="Remember me"
                 />
                 <Button
@@ -243,17 +191,13 @@ export default function Signup() {
                   fullWidth
                   variant="outlined"
                   sx={{ mt: 3, mb: 2, color: "#e92239", borderColor: "#000" }}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
                   Log In
                 </Button>
                 <Grid container>
                   <Grid item>
-                    <Link
-                      to="/signup"
-                      variant="body2"
-                      style={{ color: "#e92239" }}
-                    >
+                    <Link to="/signup" style={{ color: "#e92239" }}>
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>
@@ -262,8 +206,16 @@ export default function Signup() {
             </Box>
           </Grid>
         </Grid>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright mt={8} mb={4} />
       </Container>
-    </ThemeProvider>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        {snackbar.message}
+      </Snackbar>
+    </React.Fragment>
   );
 }

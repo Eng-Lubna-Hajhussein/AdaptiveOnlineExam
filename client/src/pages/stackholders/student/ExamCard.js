@@ -1,18 +1,20 @@
 import * as React from "react";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import {
+  Grid,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Button,
+  Typography,
+} from "@basetoolkit/ui";
 import examIcon from "../../../assets/exam-icon.jpg";
-import { Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 
 export default function ExamCard({ exam }) {
   return (
-    <Card sx={{ maxWidth: 295 }}>
-      <CardMedia sx={{ height: 250 }} image={examIcon} title="examIcon" />
+    <Card sx={{ maxWidth: 400 }}>
+      <CardMedia sx={{ height: 250 }} image={examIcon} />
       <CardContent>
         <Typography
           gutterBottom
@@ -28,17 +30,23 @@ export default function ExamCard({ exam }) {
       </CardContent>
       <CardActions>
         <Grid container>
-          <Grid item container justifyContent={"center"} alignItems={"center"} xs="12">
+          <Grid
+            item
+            container
+            justifyContent={"center"}
+            alignItems={"center"}
+            xs="12"
+          >
             <Link to={`/student/exam/${exam.examID}`}>
-            <Button
-              size="large"
-              color="error"
-              fullWidth
-              variant="outlined"
-              sx={{ fontWeight: "700" }}
-            >
-              Attempt
-            </Button>
+              <Button
+                size="large"
+                color="error"
+                fullWidth
+                variant="outlined"
+                sx={{ fontWeight: "700" }}
+              >
+                Attempt
+              </Button>
             </Link>
           </Grid>
         </Grid>

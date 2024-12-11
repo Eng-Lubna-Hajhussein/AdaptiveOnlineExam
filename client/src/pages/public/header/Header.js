@@ -1,69 +1,56 @@
-import React,{useContext, useEffect}  from "react";
-import { styled, alpha } from "@mui/material/styles";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import InputBase from "@mui/material/InputBase";
-import Badge from "@mui/material/Badge";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import React, { useContext } from "react";
 import logo from "../../../assets/logo.png";
-import { Button, FormControl, Grid, InputLabel, Select } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Select,
+  AppBar,
+  Toolbar,
+  Box,
+  alpha,
+  cssInjection as styled,
+  TextField,
+  MenuItem,
+  SvgIcon,
+} from "@basetoolkit/ui";
 import { AppContext } from "../../../contextapi/contexts/AppContext";
-import LanguageIcon from "@mui/icons-material/Language";
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { Link } from "react-router-dom";
+import { textFieldClasses } from "@basetoolkit/ui/classes";
 
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: 2,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
+  "&:hover": {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
-    width: 'auto',
+    width: "auto",
   },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    paddingRight: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch',
-      },
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  color: "inherit",
+  width: "auto !important",
+  py: 0,
+  "& input::placeholder": {
+    color: "inherit",
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: "18ch",
+    [`& .${textFieldClasses.focused}`]: {
+      width: "23ch !important",
     },
+  },
+  [`& .${textFieldClasses.wrapper}`]: {
+    width: "18ch",
+    py:"5px !important",
+    borderRadius: 2,
+    border: "none",
+    transition: theme.transitions.create("width"),
   },
 }));
 
@@ -71,31 +58,37 @@ export default function Header() {
   const { appState, appDispatch } = useContext(AppContext);
 
   const dictionary = {
-    search:{
-      en:"Search...",
-      ar:"...ابحث"
+    search: {
+      en: "Search...",
+      ar: "...ابحث",
     },
-    signup:{
-      en:"SIGNUP",
-      ar:"انشاء حساب"
+    signup: {
+      en: "SIGNUP",
+      ar: "انشاء حساب",
     },
-    login:{
-      en:"LOGIN",
-      ar:"تسجيل الدخول"
-    }
-  }
+    login: {
+      en: "LOGIN",
+      ar: "تسجيل الدخول",
+    },
+  };
 
-  const handleChange = (event) => {
+  const handleChange = (selected) => {
     appDispatch({
-      type:"CHANGE_LANGUAGE",
-      lang:event.target.value
-    })
+      type: "CHANGE_LANGUAGE",
+      lang: selected.value,
+    });
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }} display="flex" justifyContent="center" dir={appState.dir}>
+    <Box
+      sx={{ flexGrow: 1 }}
+      display="flex"
+      justifyContent="center"
+      dir={appState.dir}
+    >
       <AppBar
         position="static"
+        width={"100%"}
         style={{
           background: "#B1D9B2",
           height: "150px",
@@ -103,56 +96,105 @@ export default function Header() {
         }}
       >
         <Toolbar sx={{ height: "150px" }}>
-          <Grid container xs="12">
-            <Grid item xs="2" container justifyContent={"flex-start"}>
+          <Grid
+            container
+            xs="12"
+            height={"100%"}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Grid item xs="2" container justifyContent={"start"}>
               <img src={logo} style={{ width: "200px", height: "60px" }} />
             </Grid>
-            <Grid item xs="2" container sx={{height:"60px"}} justifyContent={"center"} alignItems={"center"}>
-                <Search sx={{width:"80%",minWidth:"80%"}}>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder={dictionary.search[appState.lang]}
-              inputProps={{ 'aria-label': "search" }}
-            />
-          </Search>
+            <Grid
+              item
+              xs="2"
+              container
+              height={"80px"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Search sx={{ width: "80%", minWidth: "80%" }}>
+                <StyledTextField
+                  placeholder={dictionary.search[appState.lang]}
+                  inputProps={{ "aria-label": "search" }}
+                  InputProps={{
+                    endAdornment: <SvgIcon icon="search" color="white" />,
+                  }}
+                />
+              </Search>
             </Grid>
 
-            <Grid item xs="8" container justifyContent={"flex-end"}>
-              <Grid item xs="12" container justifyContent={"flex-end"}  >
-                <Grid item xs="8" container sx={{height:"60px",padding:"5px"}}  justifyContent={"flex-end"} alignItems={"center"}>
-                {/* 216c27 */}
-                <Link to={"/signup"}>
-                <Button variant="text" sx={{color:"#e92239"}} endIcon={<HowToRegIcon sx={{margin:"10px"}} />}>{dictionary.signup[appState.lang]}</Button>
-                </Link>
-                <Link to={"/login"}>
-                <Button variant="text" sx={{color:"#216c27"}} endIcon={<LockOpenIcon sx={{margin:"10px"}} />}>{dictionary.login[appState.lang]}</Button>
-                </Link>
-                  </Grid> 
-                <Grid item xs="2">
-              <Box sx={{ minWidth: 80,width:'fit-content', minHeight:40, padding:0 }}>
-                <FormControl fullWidth variant="outlined" error>
-                  <InputLabel id="demo-simple-select-label">
-                    <LanguageIcon
-                      color="#e92239"
-                      style={{ fontSize: "30px", color: "#e92239" }}
-                    />
-                  </InputLabel>
-                  <Select
-                  autoFocus
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={appState.lang}
-                    label="Age"
-                    onChange={handleChange}
-                    displayEmpty
+            <Grid item xs="8" container justifyContent={"end"}>
+              <Grid item xs="12" container justifyContent={"end"}>
+                <Grid
+                  item
+                  xs="8"
+                  container
+                  p={"5px"}
+                  height={"60px"}
+                  justifyContent={"end"}
+                  alignItems={"center"}
+                >
+                  <Link to={"/signup"}>
+                    <Button
+                      variant="text"
+                      color="primary"
+                      endIcon={
+                        <SvgIcon
+                          icon="how_to_reg"
+                          variant="filled"
+                          m={"10px"}
+                          color="primary"
+                        />
+                      }
+                    >
+                      {dictionary.signup[appState.lang]}
+                    </Button>
+                  </Link>
+                  <Link to={"/login"}>
+                    <Button
+                      variant="text"
+                      color="secondary"
+                      endIcon={
+                        <SvgIcon icon="lock_open" color="secondary" m="10px" />
+                      }
+                    >
+                      {dictionary.login[appState.lang]}
+                    </Button>
+                  </Link>
+                </Grid>
+                <Grid item xs="2" container justifyContent="end">
+                  <Box
+                    sx={{
+                      minWidth: 80,
+                      width: "fit-content",
+                      minHeight: 40,
+                      padding: 0,
+                    }}
                   >
-                    <MenuItem value={"en"}>English (en)</MenuItem>
-                    <MenuItem value={"ar"}>العربية (ar)</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+                    <Select
+                      autoFocus
+                      fullWidth
+                      error
+                      variant="outlined"
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={{ value: appState.lang, label: appState.lang }}
+                      label={
+                        <SvgIcon
+                          icon="language"
+                          fontSize={30}
+                          color="primary"
+                        />
+                      }
+                      onChange={handleChange}
+                      displayEmpty
+                    >
+                      <MenuItem value={"en"}>English (en)</MenuItem>
+                      <MenuItem value={"ar"}>العربية (ar)</MenuItem>
+                    </Select>
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>

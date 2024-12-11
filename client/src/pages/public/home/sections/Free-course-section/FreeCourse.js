@@ -1,13 +1,10 @@
 import React from "react";
-import { Container, Row, Col } from "reactstrap";
-
+import { Container, Grid, Typography, Box } from "@basetoolkit/ui";
+import FreeCourseCard from "./FreeCourseCard";
 import courseImg01 from "../../../../assests/images/seo.png";
 import courseImg02 from "../../../../assests/images/kids-learning.png";
 import courseImg03 from "../../../../assests/images/seo.png";
 import courseImg04 from "../../../../assests/images/ui-ux.png";
-import FreeCourseCard from "./FreeCourseCard";
-
-import "./free-course.css";
 
 const freeCourseData = [
   {
@@ -24,7 +21,6 @@ const freeCourseData = [
     students: 5.3,
     rating: 1.7,
   },
-
   {
     id: "03",
     title: "Advanced Humanitarian Aid",
@@ -32,7 +28,6 @@ const freeCourseData = [
     students: 5.3,
     rating: 1.7,
   },
-
   {
     id: "04",
     title: "Extra Humanitarian Aid",
@@ -44,21 +39,24 @@ const freeCourseData = [
 
 const FreeCourse = () => {
   return (
-    <section>
+    <Box component="section" sx={{ py: 8 }}>
       <Container>
-        <Row>
-          <Col lg="12" className="text-center mb-5">
-            <h2 className="fw-bold">Our Free Courses</h2>
-          </Col>
-
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ fontWeight: "bold", mb: 4 }}
+        >
+          Our Free Courses
+        </Typography>
+        <Grid container spacing={3}>
           {freeCourseData.map((item) => (
-            <Col lg="3" md="4" className="mb-4" key={item.id}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
               <FreeCourseCard item={item} />
-            </Col>
+            </Grid>
           ))}
-        </Row>
+        </Grid>
       </Container>
-    </section>
+    </Box>
   );
 };
 

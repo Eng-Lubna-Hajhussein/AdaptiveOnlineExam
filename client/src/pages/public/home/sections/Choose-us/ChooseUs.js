@@ -1,60 +1,91 @@
 import React, { useContext, useState } from "react";
-import { Container, Row, Col } from "reactstrap";
-
-import chooseImg from "../../../../../assets/video_bg.png";
-import video from "../../../../../assets/video1.mov";
-import "./choose-us.css";
-
-import ReactPlayer from "react-player";
+import { Box, Grid, Typography, Container, SvgIcon } from "@basetoolkit/ui";
 import { AppContext } from "../../../../../contextapi/contexts/AppContext";
+import video from "../../../../../assets/video1.mov";
 
 const ChooseUs = () => {
   const { appState } = useContext(AppContext);
   const [showVideo, setShowVideo] = useState(false);
-  const dictionary = {
-    title:{
-      en:"Why Choose Us?",
-      ar:"لماذا نحن؟"
-    },
-    desc:{
-      en:"Our platform offers a tailored approach to learning through adaptive exams. Say goodbye to one-size-fits-all assessments and embrace a learning journey designed specifically for your strengths and areas of improvement.",
-      ar:"تقدم منصتنا نهجًا مخصصًا للتعلم من خلال الاختبارات التكيفية. قل وداعًا للتقييمات ذات الحجم الواحد الذي يناسب الجميع واحتضن رحلة تعلم مصممة خصيصًا لنقاط القوة لديك ومجالات التحسين."
-    }
-  }
-  return (
-    <section dir={appState.dir}>
-      <Container>
-        <Row>
-          <Col lg="6" md="6" className="m-auto">
-            <div className="choose__content">
-              <h2 style={{color:"#e92239"}}>{dictionary.title[appState.lang]}</h2>
-              <h5 style={{fontWeight:"400"}}>
-                {dictionary.desc[appState.lang]}
-              </h5>
-            </div>
-          </Col>
 
-          <Col lg="6" md="6" className="m-auto">
-            <div className="choose__img" >
-                <ReactPlayer
-                  url={video}
-                  controls
-                  width="100%"
-                  height="350px"
-                />
+  const dictionary = {
+    title: {
+      en: "Why Choose Us?",
+      ar: "لماذا نحن؟",
+    },
+    desc: {
+      en: "Our platform offers a tailored approach to learning through adaptive exams. Say goodbye to one-size-fits-all assessments and embrace a learning journey designed specifically for your strengths and areas of improvement.",
+      ar: "تقدم منصتنا نهجًا مخصصًا للتعلم من خلال الاختبارات التكيفية. قل وداعًا للتقييمات ذات الحجم الواحد الذي يناسب الجميع واحتضن رحلة تعلم مصممة خصيصًا لنقاط القوة لديك ومجالات التحسين.",
+    },
+  };
+
+  return (
+    <Box component="section" dir={appState.dir} sx={{ py: 8 }}>
+      <Container>
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Box>
+              <Typography
+                variant="h4"
+                gutterBottom
+                sx={{
+                  color: "primary",
+                  fontWeight: "bold",
+                  textAlign: appState.dir === "rtl" ? "right" : "left",
+                }}
+              >
+                {dictionary.title[appState.lang]}
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 400,
+                  textAlign: appState.dir === "rtl" ? "right" : "left",
+                }}
+              >
+                {dictionary.desc[appState.lang]}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                position: "relative",
+                textAlign: "center",
+              }}
+            >
+              <video
+                src={video}
+                controls={showVideo}
+                style={{
+                  width: "100%",
+                  height: "350px",
+                  borderRadius: "8px",
+                }}
+                onClick={() => setShowVideo(true)}
+              />
               {!showVideo && (
-                <span className="play__icon">
-                  <i
-                    class="ri-play-circle-line"
-                    onClick={() => setShowVideo(!showVideo)}
-                  ></i>
-                </span>
+                <Box
+                  onClick={() => setShowVideo(true)}
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <SvgIcon
+                    icon="play_circle_outline"
+                    color="primary.main"
+                    fontSize={64}
+                  />
+                </Box>
               )}
-            </div>
-          </Col>
-        </Row>
+            </Box>
+          </Grid>
+        </Grid>
       </Container>
-    </section>
+    </Box>
   );
 };
 

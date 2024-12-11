@@ -1,10 +1,30 @@
 import React, { useContext } from "react";
-import "./testimonial.css";
-import { Container, Row, Col } from "reactstrap";
-import Slider from "react-slick";
+import {
+  Box,
+  Grid,
+  Typography,
+  Container,
+  Carousel,
+  alpha,
+  keyframes,
+} from "@basetoolkit/ui";
+import { carouselClasses } from "@basetoolkit/ui/classes";
 import { AppContext } from "../../../../../contextapi/contexts/AppContext";
 
-// import img from "../../../../assests/images/testimonial01.png";
+const indicatorTransition = keyframes`
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+`;
 
 const Testimonials = () => {
   const { appState } = useContext(AppContext);
@@ -70,93 +90,118 @@ const Testimonials = () => {
     },
   };
 
-  const settings = {
-    infinite: true,
-    dots: true,
-    speed: 500,
-    slidesToShow: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    slidesToScroll: 1,
-  };
+  const slides = [
+    dictionary.clientOne,
+    dictionary.clientTwo,
+    dictionary.clientThree,
+  ].map((client, index) => ({
+    content: (
+      <Box key={index} color="black" dir={appState.dir} px={4}>
+        <Typography
+          variant="h5"
+          color="black"
+          mb={1}
+          fontWeight={600}
+          fontSize={20}
+          textAlign="start"
+        >
+          {client.title[appState.lang]}
+        </Typography>
+        <Typography variant="body1" fontSize={14} mb={2} textAlign="start">
+          {client.desc[appState.lang]}
+        </Typography>
+        <Box>
+          <Typography
+            variant="h6"
+            fontSize={20}
+            fontWeight={600}
+            textAlign="start"
+          >
+            {client.name[appState.lang]}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" textAlign="start">
+            {client.location[appState.lang]}
+          </Typography>
+        </Box>
+      </Box>
+    ),
+  }));
+
   return (
-    <section dir={appState.dir}>
+    <Box
+      component="section"
+      dir={appState.dir}
+      sx={{
+        py: 8,
+        textAlign: "center",
+      }}
+    >
       <Container>
-        <Row>
-          <Col lg="10" md="12" className="m-auto">
-            <div className="testimonial__wrapper d-flex justify-content-between align-items-center ">
-              <div
-                className="testimonial__img w-50"
-                style={{ padding: "10px" }}
-              >
-                <img
-                  src={
-                    "https://cdn01.alison-static.net/public/html/site/img/homepage/earn-1.svg"
-                  }
-                  alt=""
-                  className="w-100"
-                />
-              </div>
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Box
+              component="img"
+              src="https://cdn01.alison-static.net/public/html/site/img/homepage/earn-1.svg"
+              alt="Testimonials"
+              sx={{
+                width: "100%",
+                borderRadius: "8px",
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+                color: "#e92239",
+                mb: 4,
+                textAlign: appState.dir === "rtl" ? "right" : "left",
+              }}
+            >
+              {dictionary.title[appState.lang]}
+            </Typography>
 
-              <div
-                className="testimonial__content w-50"
-                style={{ padding: "50px" }}
-              >
-                <h2 className="mb-4" style={{color:"#e92239"}}>{dictionary.title[appState.lang]}</h2>
+            <Carousel
+              slides={slides}
+              slidesPerView={1}
+              autoShow={true}
+              interval={3000}
+              width={"100%"}
+              sx={{
+                [`& .${carouselClasses.slideContent}`]: {
+                  width: "100%",
+                  height: "auto",
+                },
+                [`& .${carouselClasses.next},& .${carouselClasses.prev}`]: {
+                  display: "none",
+                },
 
-                <Slider {...settings}>
-                  <div dir={appState.dir}>
-                    <div className="single__testimonial" dir={appState.dir}>
-                      <h4 className="mb-3 fw-bold">
-                        {dictionary.clientOne.title[appState.lang]}
-                      </h4>
-                      <p>{dictionary.clientOne.desc[appState.lang]}</p>
-
-                      <div className="student__info mt-4" dir={appState.dir}>
-                        <h5 className="fw-bold">
-                          {dictionary.clientOne.name[appState.lang]}
-                        </h5>
-                        <p>{dictionary.clientOne.location[appState.lang]}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="single__testimonial" dir={appState.dir}>
-                      <h4 className="mb-3 fw-bold">
-                        {dictionary.clientTwo.title[appState.lang]}
-                      </h4>
-                      <p>{dictionary.clientTwo.desc[appState.lang]}</p>
-
-                      <div className="student__info mt-4" dir={appState.dir}>
-                        <h5 className="fw-bold">
-                          {dictionary.clientTwo.name[appState.lang]}
-                        </h5>
-                        <p>{dictionary.clientTwo.location[appState.lang]}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="single__testimonial" dir={appState.dir}>
-                      <h4 className="mb-3 fw-bold">{dictionary.clientThree.title[appState.lang]}</h4>
-                      <p>
-                      {dictionary.clientThree.desc[appState.lang]}
-                      </p>
-
-                      <div className="student__info mt-4" dir={appState.dir}>
-                        <h5 className="fw-bold">{dictionary.clientThree.name[appState.lang]}</h5>
-                        <p>{dictionary.clientThree.location[appState.lang]}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Slider>
-              </div>
-            </div>
-          </Col>
-        </Row>
+                [`& .${carouselClasses.indicators}`]: {
+                  position: "absolute",
+                  bottom: "6px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
+                  gap: "8px",
+                },
+                [`& .${carouselClasses.indicator}`]: {
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "50%",
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.5), //"rgba(0, 0, 0, 0.5)",
+                  cursor: "pointer",
+                  "&.active": {
+                    bgcolor: (theme) => theme.palette.primary.main,
+                    animation: `${indicatorTransition} 0.8s ease-in-out infinite`,
+                  },
+                },
+              }}
+            />
+          </Grid>
+        </Grid>
       </Container>
-    </section>
+    </Box>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer, useRef } from "react";
+import React, { createContext, useEffect, useReducer } from "react";
 import { AppReducer } from "../reducers/AppReducer";
 
 export const AppContext = createContext({ appState: {}, appDispatch: {} });

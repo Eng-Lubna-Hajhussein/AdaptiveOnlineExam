@@ -1,54 +1,28 @@
-import { useState, useContext, useEffect, useRef, useCallback, useMemo } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  Card,
+  CardContent,
+  FormLabel,
+  RadioGroup,
+  Radio,
+  CircularProgress,
+  Divider,
+  Typography,
+  Grid,
+  FormControlLabel,
+  Button,
+  SvgIcon,
+} from "@basetoolkit/ui";
 import useFetch from "../../../hooks/useFetch";
 import { AppContext } from "../../../contextapi/contexts/AppContext";
 import Header from "./header/Header";
-import QuizIcon from "@mui/icons-material/Quiz";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { CircularProgress, Divider } from "@mui/material";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ExamCard from "./ExamCard";
-import ExamQuestionCard from "./ExamQuestionCard";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import CardContent from "@mui/material/CardContent";
-import Card from "@mui/material/Card";
-import Swal from "sweetalert2";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
+import { useParams, useNavigate } from "react-router-dom";
 
 function shuffle(inputArr) {
   const array = [...inputArr];
@@ -72,14 +46,14 @@ function shuffle(inputArr) {
 }
 
 export default function StudentExam() {
-  const { appState, appDispatch } = useContext(AppContext);
+  const { appState } = useContext(AppContext);
   const { examID } = useParams();
   const navigate = useNavigate();
   const [{ data, isLoading, isError }, fetchData] = useFetch(
     `http://localhost:4000/examQuestion/${examID}`
   );
   const [remainTime, setRemainTime] = useState(12640);
-  const [questions,setQuestions] = useState(data?.questions)
+  const [questions, setQuestions] = useState(data?.questions);
   const [currentQuestion, setCurrentQuestion] = useState(data?.questions[0]);
   const [questionIndex, setQuestionIndex] = useState(1);
   const [score, setScore] = useState(0);
@@ -87,18 +61,17 @@ export default function StudentExam() {
   const decrementTimer = useCallback(() => {
     setRemainTime((oldTimer) => oldTimer - 1);
   }, []);
-  const choices = useMemo(()=>{
-    if(currentQuestion){
+  const choices = useMemo(() => {
+    if (currentQuestion) {
       return shuffle([
         currentQuestion?.incorrectChoice1,
         currentQuestion?.incorrectChoice2,
         currentQuestion?.incorrectChoice3,
         currentQuestion?.correctChoice,
-      ])
+      ]);
     }
-    return []
-
-  },[currentQuestion])
+    return [];
+  }, [currentQuestion]);
 
   useEffect(() => {
     if (remainTime <= 0) {
@@ -120,57 +93,56 @@ export default function StudentExam() {
     }
   }, [questions]);
 
+  useEffect(() => {}, [answer]);
 
-  useEffect(()=>{
-    
-  },[answer])
-
-  useEffect(()=>{console.log({score})},[score])
+  useEffect(() => {
+    console.log({ score });
+  }, [score]);
 
   const handleNextQuestion = () => {
     //answer
 
-    if(answer===currentQuestion.correctChoice){
-      setScore(score+1)
+    if (answer === currentQuestion.correctChoice) {
+      setScore(score + 1);
     }
 
-    if(answer===currentQuestion.correctChoice&&questions.length===1){
-         navigate(`/student/exam/score/${score+1}/${data.questions.length}`);
+    if (answer === currentQuestion.correctChoice && questions.length === 1) {
+      navigate(`/student/exam/score/${score + 1}/${data.questions.length}`);
       return;
     }
-    if(answer!==currentQuestion.correctChoice&&questions.length===1){
+    if (answer !== currentQuestion.correctChoice && questions.length === 1) {
       navigate(`/student/exam/score/${score}/${data.questions.length}`);
       return;
     }
-    if(answer===currentQuestion.correctChoice&&questions.length>1){
-      //questions sorted adaptiveIndex 
+    if (answer === currentQuestion.correctChoice && questions.length > 1) {
+      //questions sorted adaptiveIndex
       const updateQuestions = [...questions];
       updateQuestions.shift();
-      setQuestions(updateQuestions)
+      setQuestions(updateQuestions);
     }
-    if(answer!==currentQuestion.correctChoice&&questions.length>1){
-      //questions sorted adaptiveIndex 
+    if (answer !== currentQuestion.correctChoice && questions.length > 1) {
+      //questions sorted adaptiveIndex
       const updateQuestions = [...questions];
       updateQuestions.shift();
-      const targetQID = updateQuestions.findIndex((q)=>{
-        if(q.adaptiveIndex<currentQuestion.adaptiveIndex){
+      const targetQID = updateQuestions.findIndex((q) => {
+        if (q.adaptiveIndex < currentQuestion.adaptiveIndex) {
           return q;
         }
-      })
-      if(targetQID!==-1){
-       const target = updateQuestions.splice(targetQID,1)[0]
-       updateQuestions.unshift(target);
+      });
+      if (targetQID !== -1) {
+        const target = updateQuestions.splice(targetQID, 1)[0];
+        updateQuestions.unshift(target);
       }
-      setQuestions(updateQuestions)
+      setQuestions(updateQuestions);
     }
-    setQuestionIndex(questionIndex+1)
+    setQuestionIndex(questionIndex + 1);
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       {isLoading && <CircularProgress />}
-      {(!!questions?.length &&!!choices.length)&& (
+      {!!questions?.length && !!choices.length && (
         <div
           style={{
             margin: "auto",
@@ -208,7 +180,12 @@ export default function StudentExam() {
                 justifyContent={"center"}
                 alignItems={"center"}
               >
-                <AccessTimeIcon sx={{ fontSize: "25px", color: "#e92239" }} />
+                <SvgIcon
+                  icon="access_time"
+                  mx={"3px"}
+                  fontSize={25}
+                  color="primary"
+                />
                 <Typography sx={{ fontSize: "25px", color: "#e92239" }}>
                   Remain Time:
                 </Typography>
@@ -278,36 +255,53 @@ export default function StudentExam() {
               container
               xs="12"
             >
-              <Card dir={appState.dir} sx={{ minWidth: 875 }}>
-              <Divider />
-              <Grid sx={{padding:"10px"}} item xs="12" container justifyContent={"center"}>
-              <Typography sx={{ fontSize: "14px", color: "gree",border:"1px solid green",padding:"5px" }}>
-                  Question Adaptivity: {currentQuestion.adaptiveIndex}
-                </Typography>
-              </Grid>
+              <Card dir={appState.dir} sx={{ minWidth: 875, border: "none" }}>
+                <Divider />
+                <Grid
+                  sx={{ padding: "10px" }}
+                  item
+                  xs="12"
+                  container
+                  justifyContent={"center"}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      color: "gree",
+                      border: "1px solid green",
+                      padding: "5px",
+                    }}
+                  >
+                    Question Adaptivity: {currentQuestion.adaptiveIndex}
+                  </Typography>
+                </Grid>
                 <CardContent>
-                  <FormControl>
-                    <FormLabel id="demo-radio-buttons-group-label">
-                      {questionIndex}) {currentQuestion?.questionText}
-                    </FormLabel>
-                    <RadioGroup
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue=""
-                      name="radio-buttons-group"
-                      value={answer}
-                      onChange={(e)=>{
-                        setAnswer(e.target.value)
-                      }}
-                    >
-                      {choices.map((choice)=><FormControlLabel value={choice} control={<Radio />} label={choice} /> )}
-                    </RadioGroup>
-                  </FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">
+                    {questionIndex}) {currentQuestion?.questionText}
+                  </FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue=""
+                    name="radio-buttons-group"
+                    value={answer}
+                    onChange={(e) => {
+                      setAnswer(e.target.value);
+                    }}
+                  >
+                    {choices.map((choice) => (
+                      <FormControlLabel
+                        value={choice}
+                        control={<Radio />}
+                        label={choice}
+                      />
+                    ))}
+                  </RadioGroup>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
         </div>
       )}
-    </ThemeProvider>
+    </React.Fragment>
   );
 }

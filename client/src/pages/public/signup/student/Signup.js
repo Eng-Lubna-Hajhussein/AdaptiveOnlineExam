@@ -1,176 +1,94 @@
-import { useState, useContext, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, makeStyles, ThemeProvider } from "@mui/material/styles";
-import { withStyles } from "@mui/styles";
-import useFetch from "../../../../hooks/useFetch";
+import React, { useContext } from "react";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Box,
+  Typography,
+  Container,
+  Snackbar,
+  SvgIcon,
+  useTheme,
+} from "@basetoolkit/ui";
 import { AppContext } from "../../../../contextapi/contexts/AppContext";
 import Header from "../../header/Header";
-import validator from "validator";
-import { Link } from "react-router-dom";
-import HowToRegIcon from "@mui/icons-material/HowToReg";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm, Controller } from "@basetoolkit/ui/form";
 import studentImg from "../../../../assets/student-signup.svg";
-import Swal from "sweetalert2";
-
-const CssTextField = withStyles({
-  root: {
-    "& label.Mui-focused": {
-      color: "#3c7e54",
-    },
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "yellow",
-    },
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "#3c7e54",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#3c7e54",
-      },
-    },
-  },
-})(TextField);
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
+import Copyright from "../../Copyright/Copyright";
 
 export default function Signup() {
+  const theme = useTheme();
   const { appState, appDispatch } = useContext(AppContext);
-  const [loading, setLoading] = useState(false);
-  const [{ data, isLoading, isError }, fetchData] = useFetch();
-  const [errors, setErrors] = useState({
-    fullname: "",
-    email: "",
-    password: "",
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    severity: "success",
   });
 
-  useEffect(() => {
-    console.log({ appState });
-  }, [appState]);
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const fields = new FormData(event.currentTarget);
-    const fullname = fields.get("fullname").trim();
-    const email = fields.get("email").trim();
-    const password = fields.get("password").trim();
-    let validErrors = {
-      fullname: "",
-      email: "",
-      password: "",
-    };
+  const onSubmit = async (data) => {
+    const { fullname, username, email, password } = data;
+
     try {
-      if (!validator.isEmail(email)) {
-        validErrors = {
-          ...validErrors,
-          ["email"]: "(invalid email):email syntax must be user@gmail.com",
-        };
-      }
-      if (password.length < 8) {
-        validErrors = {
-          ...validErrors,
-          ["password"]:
-            "(weak password):your password must be at least 8 characters",
-        };
-      }
-      if (fullname.split(" ").length < 2) {
-        validErrors = {
-          ...validErrors,
-          ["fullname"]:
-            "(incomplete fullname):your fullname must contain at least 2 word",
-        };
-      }
-      setErrors({...validErrors});
-      if (
-        validator.isEmail(email) &&
-        password.length > 7 &&
-        fullname.split(" ").length >= 2
-      ) {
-        const headers = {
-          method: "POST",
-          withCredentials: true,
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            fullname: fullname,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-        setLoading(true);
-        const response = await fetchData(
-          "http://localhost:4000/students/signup",
-          headers
-        );
-        if(response.errors){
-          if(response.errors.email.en){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: `<h5>${response.errors.email[appState.lang]}</h5>`,
-              footer: `<a href="">Why do I have this issue?</a>`
-            })
-          }
-          else 
-          if(response.errors.password.ar){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: `<h5>${response.errors.password[appState.lang]}</h5>`,
-              footer: `<a href="">Why do I have this issue?</a>`
-            })
-          }
-        }else{
-          setLoading(false);
-          appDispatch({
-            type: "GET_USERINFO",
-            userInfo: { studentID: response.user },
-          });
-        }
+      setLoading(true);
+      const response = await fetch("http://localhost:4000/students/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullname, username, email, password }),
+      });
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (result.errors) {
+        const errorMessage =
+          result.errors.email?.[appState.lang] ||
+          result.errors.password?.[appState.lang] ||
+          "An error occurred.";
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
+      } else {
+        setLoading(false);
+        appDispatch({
+          type: "GET_USERINFO",
+          userInfo: { studentID: result.user },
+        });
+        navigate(`/student-login`);
       }
     } catch (error) {
-      console.log({ error });
+      console.error(error);
+      setLoading(false);
+      setSnackbar({
+        open: true,
+        message: "An unexpected error occurred.",
+        severity: "error",
+      });
     }
   };
+
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       <Container>
         <CssBaseline />
         <Grid container>
-          <Grid item xs="6">
-            <img src={studentImg} />
+          <Grid item xs={6}>
+            <img src={studentImg} alt="Student Signup" />
           </Grid>
-          <Grid item xs="6">
+          <Grid item xs={6}>
             <Box
               sx={{
                 marginTop: 5,
@@ -179,105 +97,136 @@ export default function Signup() {
                 alignItems: "center",
               }}
             >
-              <Grid
-                item
-                xs="12"
-                container
-                justifyContent={"center"}
-                alignItems={"center"}
+              <SvgIcon
+                icon="how_to_reg"
+                fontSize={55}
+                color="black"
+                variant="filled"
+              />
+              <Typography
+                color="primary"
+                style={{
+                  fontWeight: "600",
+                  marginBottom: "25px",
+                  fontSize: "25px",
+                }}
               >
-                <HowToRegIcon sx={{ fontSize: "55px" }} />
-              </Grid>
-              <Grid
-                item
-                xs="12"
-                container
-                justifyContent={"center"}
-                alignItems={"center"}
+                SIGNUP AS STUDENT!
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
+                width="80%"
               >
-                <Typography
-                  style={{
-                    color: "#e92239",
-                    fontWeight: "600",
-                    marginBottom: "25px",
-                    fontSize: "25px",
-                  }}
-                >
-                  SIGNUP AS STUDENT!
-                </Typography>
-              </Grid>
-              <Box component="form" onSubmit={handleSubmit}>
-                <CssTextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="fullname"
-                  label="Full Name"
+                <Controller
                   name="fullname"
-                  autoComplete="fullname"
-                  autoFocus
-                  onChange={(e)=>{
-                    if(e.target.value.trim().split(" ").length>=2){
-                      setErrors({...errors,["fullname"]:""})
-                    }
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Full name is required.",
+                    },
+                    validate: (value) =>
+                      value.trim().split(" ").length >= 2 ||
+                      "Full name must contain at least 2 words.",
                   }}
-                  error={!!errors.fullname.length}
-                  helperText={!!errors.fullname.length? errors.fullname: ''}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="fullname"
+                      label="Full Name"
+                      color="secondary"
+                      error={!!errors?.fullname?.message}
+                      helperText={errors.fullname?.message}
+                    />
+                  )}
                 />
-                <CssTextField
-                  margin="normal"
-                  fullWidth
-                  id="username"
-                  label="Username"
+                <Controller
                   name="username"
-                  autoComplete="username"
-                  autoFocus
+                  control={control}
+                  rules={{ required: "Username is required." }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      margin="normal"
+                      color="secondary"
+                      required
+                      fullWidth
+                      id="username"
+                      label="Username"
+                      error={!!errors?.username?.message}
+                      helperText={errors.username?.message}
+                    />
+                  )}
                 />
-                <CssTextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
+                <Controller
                   name="email"
-                  autoComplete="email"
-                  autoFocus
-                  onChange={(e)=>{
-                    if(validator.isEmail(e.target.value)){
-                      setErrors({...errors,["email"]:""})
-                    }
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Email is required." },
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email address.",
+                    },
                   }}
-                  error={!!errors.email.length}
-                  helperText={!!errors.email.length? errors.email: ''}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      color="secondary"
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="email"
+                      label="Email Address"
+                      error={!!errors?.email?.message}
+                      helperText={errors.email?.message}
+                    />
+                  )}
                 />
-                <CssTextField
-                  margin="normal"
-                  required
-                  fullWidth
+                <Controller
                   name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  autoFocus
-                  onChange={(e)=>{
-                    if(e.target.value.length>7){
-                      setErrors({...errors,["password"]:""})
-                    }
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Password is required." },
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters long.",
+                    },
                   }}
-                  error={!!errors.password.length}
-                  helperText={!!errors.password.length? errors.password: ''}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      sx={{ mb: 2 }}
+                      margin="normal"
+                      color="secondary"
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                      error={!!errors?.password?.message}
+                      helperText={errors.password?.message}
+                    />
+                  )}
                 />
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="success" />}
+                  control={<Checkbox size="large" color="success" />}
                   label="Remember me"
                 />
                 <Button
                   type="submit"
                   fullWidth
                   variant="outlined"
-                  sx={{ mt: 3, mb: 2, color: "#e92239", borderColor: "#000" }}
-                  disabled={isLoading}
+                  color="primary"
+                  sx={{ mt: 3, mb: 2, borderColor: "#000" }}
+                  disabled={loading}
                 >
                   Sign Up
                 </Button>
@@ -285,10 +234,9 @@ export default function Signup() {
                   <Grid item>
                     <Link
                       to="/login"
-                      variant="body2"
-                      style={{ color: "#e92239" }}
+                      style={{ color: theme.palette.primary.main }}
                     >
-                      {"Already have an account? Log In"}
+                      Already have an account? Log In
                     </Link>
                   </Grid>
                 </Grid>
@@ -296,8 +244,16 @@ export default function Signup() {
             </Box>
           </Grid>
         </Grid>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright mt={8} mb={4} />
       </Container>
-    </ThemeProvider>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        {snackbar.message}
+      </Snackbar>
+    </React.Fragment>
   );
 }

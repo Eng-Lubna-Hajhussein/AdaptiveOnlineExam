@@ -1,31 +1,25 @@
 import React, { useContext } from "react";
 import Header from "../header/Header";
-import { ThemeProvider } from "@emotion/react";
 import {
   Container,
   CssBaseline,
   Divider,
   Grid,
   Rating,
+  SvgIcon,
   Typography,
-  createTheme,
-} from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
-import bgImg from "../../../assets/bg1.jpg";
+} from "@basetoolkit/ui";
 import { AppContext } from "../../../contextapi/contexts/AppContext";
-import QuizIcon from "@mui/icons-material/Quiz";
-import PeopleIcon from "@mui/icons-material/People";
 import AboutUs from "./sections/About-us/AboutUs";
 import ChooseUs from "./sections/Choose-us/ChooseUs";
 import Features from "./sections/Feature-section/Features";
+import Courses from "./sections/Courses-section/Courses";
 import Testimonials from "./sections/Testimonial/Testimonials";
 import Newsletter from "./sections/Newsletter/Newsletter";
 import Footer from "./sections/Footer/Footer";
 
-const defaultTheme = createTheme();
-
 const Home = () => {
-  const { appState, appDispatch } = useContext(AppContext);
+  const { appState } = useContext(AppContext);
 
   const dictionary = {
     title: {
@@ -51,8 +45,7 @@ const Home = () => {
   };
 
   return (
-    <>
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       <Container dir={appState.dir}>
         <CssBaseline />
@@ -103,6 +96,7 @@ const Home = () => {
           xs="4"
           dir={appState.dir}
           container
+          height={"100%"} alignItems="center"
           sx={{ borderRight: "3px solid #fff" }}
           justifyContent={"center"}
         >
@@ -117,14 +111,13 @@ const Home = () => {
         <Grid
           item
           xs="3"
+           height={"100%"} alignItems="center"
           container
           dir={appState.dir}
           sx={{ borderRight: "3px solid #fff" }}
           justifyContent={"center"}
         >
-          <QuizIcon
-            sx={{ marginLeft: "5px", marginRight: "5px", color: "#e92239" }}
-          />
+          <SvgIcon icon="quiz" color="primary" mx={"5px"} variant="filled" />
           <Typography sx={{ fontSize: "17px", fontWeight: "700" }}>
             {dictionary.statisticsTypoThree[appState.lang]}
           </Typography>
@@ -132,47 +125,45 @@ const Home = () => {
         <Grid
           item
           xs="3"
+           height={"100%"} alignItems="center"
           container
           dir={appState.dir}
           justifyContent={"center"}
         >
-          <PeopleIcon
-            sx={{ marginLeft: "5px", marginRight: "5px", color: "#e92239" }}
-          />
+          <SvgIcon icon="people" color="primary" mx={"5px"} variant="filled" />
           <Typography sx={{ fontSize: "17px", fontWeight: "700" }}>
             {dictionary.statisticsTypoFour[appState.lang]}
           </Typography>
         </Grid>
       </Grid>
       <Container>
-        <Grid container sx={{ paddingTop: "100px", paddingBottom: "100px" }}>
+        <Grid container >
           <AboutUs />
         </Grid>
         <Divider />
-        <Grid container sx={{ paddingTop: "100px", paddingBottom: "100px" }}>
+        <Grid container >
           <ChooseUs />
         </Grid>
         <Divider />
-        <Grid container sx={{ paddingTop: "100px", paddingBottom: "100px" }}>
+        <Grid container >
           <Features />
+        </Grid>
+        <Grid container >
+          <Courses />
         </Grid>
         <Divider />
       </Container>
       <div style={{ paddingTop: "50px", paddingBottom: "50px" }}>
-      <Testimonials />
-
+        <Testimonials />
       </div>
       <Divider />
       <div style={{ paddingTop: "50px", paddingBottom: "50px" }}>
-          <Newsletter />
-
+        <Newsletter />
       </div>
       <div style={{ paddingTop: "50px" }}>
-
-          <Footer />
+        <Footer />
       </div>
-    </ThemeProvider>
-    </>
+    </React.Fragment>
   );
 };
 
