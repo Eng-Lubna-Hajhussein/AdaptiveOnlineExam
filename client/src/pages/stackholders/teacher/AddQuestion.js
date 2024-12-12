@@ -1,76 +1,75 @@
-import {useState,useContext, useEffect} from "react";
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import useFetch from '../../../hooks/useFetch';
+import { useContext, useEffect, useState } from "react";
+import { Button } from "@basetoolkit/ui";
+import useFetch from "../../../hooks/useFetch";
 import { AppContext } from "../../../contextapi/contexts/AppContext";
-import Swal from "sweetalert2";
+import AlertDialog from "../../public/AlertDialog/AlertDialog";
 
 const AddQuestion = () => {
-    const { appState,appDispatch } = useContext(AppContext);
-    
-    const {data, error, fetchData, isPending} = useFetch();
+  const { appState } = useContext(AppContext);
+  const { fetchData } = useFetch();
 
-    const teacherID = JSON.parse(localStorage.getItem("AppState"))?.userInfo?.teacherID;
+  const teacherID = JSON.parse(localStorage.getItem("AppState"))?.userInfo
+    ?.teacherID;
 
-    useEffect(()=>{
-        console.log({appState});
+  const [alertConfig, setAlertConfig] = useState({
+    open: false,
+    title: "",
+    message: "",
+    alertType: "success",
+  });
 
-        console.log(teacherID);
-      },[appState])
-      
-      const handleSubmit = async(event) => {
-        //   event.preventDefault();
-        //   const fields = new FormData(event.currentTarget);
-
-            const headers = {
-                method: "POST",
-                body: JSON.stringify({
-                    teacherID:teacherID,
-                    kpiNumber:"12",
-                    level:"المستوى الأساسي",
-                    grade:"4",
-                    skill:"النحو والصرف",
-                    questionText:"questionText",
-                    
-                  }),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              };
-            const question = await fetchData("http://localhost:4000/question",headers);
-              console.log({question})
-              if(!question){
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Oops...',
-                  html: `<h5>question has been added successfully</h5>`,
-                  footer: `<a href="">Why do I have this issue?</a>`
-                })
-              }
-            
-            // appDispatch({
-            //     type: "GET_USERINFO",
-            //     userInfo: {...appState.userInfo,examID:data?.ExamID}
-            //   });
-          console.log({data})
+  const handleAlertClose = () => {
+    setAlertConfig((prev) => ({ ...prev, open: false }));
   };
 
-    return ( <div>
-        <Button
-    onClick={()=>{handleSubmit()}}
-    >Create Question</Button>
-    </div> );
-}
- 
+  const handleSubmit = async () => {
+    const headers = {
+      method: "POST",
+      body: JSON.stringify({
+        teacherID: teacherID,
+        kpiNumber: "12",
+        level: "المستوى الأساسي",
+        grade: "4",
+        skill: "النحو والصرف",
+        questionText: "questionText",
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const question = await fetchData("http://localhost:4000/question", headers);
+
+    if (question) {
+      setAlertConfig({
+        open: true,
+        title: "Success",
+        message: "Question has been added successfully!",
+        alertType: "success",
+      });
+    } else {
+      setAlertConfig({
+        open: true,
+        title: "Oops...",
+        message: "Failed to add the question.",
+        alertType: "error",
+      });
+    }
+  };
+
+  return (
+    <div>
+      <Button onClick={handleSubmit}>Create Question</Button>
+
+      <AlertDialog
+        open={alertConfig.open}
+        onClose={handleAlertClose}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        alertType={alertConfig.alertType}
+      />
+    </div>
+  );
+};
+
 export default AddQuestion;

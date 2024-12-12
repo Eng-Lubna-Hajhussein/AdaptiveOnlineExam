@@ -1,79 +1,11 @@
-import { useState, useContext, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import useFetch from "../../../hooks/useFetch";
-import { AppContext } from "../../../contextapi/contexts/AppContext";
+import React from "react";
+import { Button, Grid, Typography, SvgIcon } from "@basetoolkit/ui";
 import Header from "./header/Header";
-// import HowToRegIcon from "@mui/icons-material/HowToReg";
-import AccountIcon from '@mui/icons-material/AccountBox';
 import { Link } from "react-router-dom";
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
-
 export default function Account() {
-  const { appState, appDispatch } = useContext(AppContext);
-  const [{ data, isLoading, isError }, fetchData] = useFetch();
-
-  useEffect(() => {
-    console.log({ appState });
-  }, [appState]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const fields = new FormData(event.currentTarget);
-    const headers = {
-      method: "POST",
-      withCredentials: true,
-      body: JSON.stringify({
-        email: fields.get("email"),
-        password: fields.get("password"),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const response = await fetchData(
-      "http://localhost:4000/teachers/login",
-      headers
-    );
-    appDispatch({
-      type: "GET_USERINFO",
-      userInfo: { teacherID: response.user },
-    });
-  };
-
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       <div
         style={{
@@ -98,7 +30,12 @@ export default function Account() {
               justifyContent={"center"}
               alignItems={"center"}
             >
-              <AccountIcon sx={{ fontSize: "55px" }} />
+              <SvgIcon
+                icon="account_circle"
+                fontSize={55}
+                color="black"
+                variant="filled"
+              />
             </Grid>
             <Grid
               item
@@ -120,44 +57,39 @@ export default function Account() {
             </Grid>
           </Grid>
           <Grid alignItems={"flex-start"} item xs={6}>
-          <Link
-                to="/teacher/exams"
+            <Link to="/teacher/exams">
+              <Button
+                style={{
+                  background: "#7BCCA2",
+                  padding: "20px",
+                  fontFamily: "sans-serif",
+                  fontSize: "20px",
+                }}
+                fullWidth
+                variant="contained"
               >
-            <Button
-              style={{
-                background: "#7BCCA2",
-                padding: "20px",
-                fontFamily: "sans-serif",
-                fontSize: "20px",
-              }}
-              fullWidth
-              variant="contained"
-            >
-              
                 Exams
-            </Button>
-              </Link>
+              </Button>
+            </Link>
           </Grid>
           <Grid alignItems={"flex-end"} item xs={6}>
-          <Link
-                to="/teacher/add-question"
+            <Link to="/teacher/add-question">
+              <Button
+                style={{
+                  background: "#7BCCA2",
+                  padding: "20px",
+                  fontFamily: "sans-serif",
+                  fontSize: "20px",
+                }}
+                fullWidth
+                variant="contained"
               >
-            <Button
-              style={{
-                background: "#7BCCA2",
-                padding: "20px",
-                fontFamily: "sans-serif",
-                fontSize: "20px",
-              }}
-              fullWidth
-              variant="contained"
-            >
                 TESTBANK
-            </Button>
-              </Link>
+              </Button>
+            </Link>
           </Grid>
         </Grid>
       </div>
-    </ThemeProvider>
+    </React.Fragment>
   );
 }

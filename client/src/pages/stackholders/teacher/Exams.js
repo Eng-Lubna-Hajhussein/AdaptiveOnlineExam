@@ -1,45 +1,16 @@
-import { useState, useContext, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import React, { useContext } from "react";
+import {
+  CircularProgress,
+  Button,
+  Grid,
+  Typography,
+  SvgIcon,
+} from "@basetoolkit/ui";
 import useFetch from "../../../hooks/useFetch";
 import { AppContext } from "../../../contextapi/contexts/AppContext";
 import Header from "./header/Header";
-import QuizIcon from "@mui/icons-material/Quiz";
 import { Link } from "react-router-dom";
-import { CircularProgress } from "@mui/material";
 import ExamCard from "./ExamCard";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
 
 export default function Exams() {
   const { appState, appDispatch } = useContext(AppContext);
@@ -47,38 +18,9 @@ export default function Exams() {
   const [{ data, isLoading, isError }, fetchData] = useFetch(
     `http://localhost:4000/exams/${teacherID}`
   );
-  console.log({ data });
-
-  useEffect(() => {
-    console.log({ appState });
-  }, [appState]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const fields = new FormData(event.currentTarget);
-    const headers = {
-      method: "POST",
-      withCredentials: true,
-      body: JSON.stringify({
-        email: fields.get("email"),
-        password: fields.get("password"),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const response = await fetchData(
-      "http://localhost:4000/teachers/signup",
-      headers
-    );
-    appDispatch({
-      type: "GET_USERINFO",
-      userInfo: { teacherID: response.user },
-    });
-  };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       {isLoading && <CircularProgress />}
       {data && (
@@ -119,7 +61,12 @@ export default function Exams() {
                 justifyContent={"center"}
                 alignItems={"center"}
               >
-                <QuizIcon sx={{ fontSize: "55px" }} />
+                <SvgIcon
+                  icon="quiz"
+                  color="black"
+                  variant="filled"
+                  fontSize={55}
+                />
               </Grid>
               <Grid
                 item
@@ -155,6 +102,6 @@ export default function Exams() {
           </Grid>
         </div>
       )}
-    </ThemeProvider>
+    </React.Fragment>
   );
 }

@@ -1,88 +1,34 @@
-import { useState, useContext, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import { TextField } from "@mui/material";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, makeStyles, ThemeProvider } from "@mui/material/styles";
-import { withStyles } from "@mui/styles";
+import React, { useContext, useState } from "react";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Grid,
+  Box,
+  Typography,
+  Container,
+} from "@basetoolkit/ui";
 import useFetch from "../../../../hooks/useFetch";
 import { AppContext } from "../../../../contextapi/contexts/AppContext";
 import Header from "../header/Header";
-import validator from "validator";
-import { Link } from "react-router-dom";
-import HowToRegIcon from "@mui/icons-material/HowToReg";
-// import { AppContext } from "../../../../contextapi/contexts/AppContext";
 import teacherImg from "../../../../assets/add-question.svg";
-import dayjs, { Dayjs } from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import Swal from "sweetalert2";
-
-const CssTextField = withStyles({
-  root: {
-    "& label.Mui-focused": {
-      color: "#3c7e54",
-    },
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "yellow",
-    },
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "#3c7e54",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#3c7e54",
-      },
-    },
-  },
-})(TextField);
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
+import Copyright from "../../../public/Copyright/Copyright";
+import AlertDialog from "../../../public/AlertDialog/AlertDialog";
 
 export default function AddExam() {
-  const { appState, appDispatch } = useContext(AppContext);
-  const [loading, setLoading] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [{ data, isLoading, isError }, fetchData] = useFetch();
-  const [errors, setErrors] = useState({
-    fullname: "",
-    email: "",
-    password: "",
+  const { appState } = useContext(AppContext);
+  const [{ isLoading }, fetchData] = useFetch();
+  const [dialogConfig, setDialogConfig] = useState({
+    open: false,
+    title: "",
+    message: "",
+    alertType: "success",
+    footer: null,
   });
 
-  useEffect(() => {
-    console.log({ appState });
-  }, [appState]);
+  const handleDialogClose = () => {
+    setDialogConfig((prev) => ({ ...prev, open: false }));
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -107,24 +53,26 @@ export default function AddExam() {
     };
     const response = await fetchData("http://localhost:4000/question", headers);
     if (!response.question) {
-      Swal.fire({
-        icon: "error",
+      setDialogConfig({
+        open: true,
         title: "Oops...",
-        html: `<h5>kpi is wrong</h5>`,
-        footer: `<a href="">Why do I have this issue?</a>`,
+        message: "KPI is wrong",
+        alertType: "error",
+        footer: { text: "Why do I have this issue?", link: "#" },
       });
-    }
-    if (response.question) {
-      Swal.fire({
-        icon: "success",
+    } else {
+      setDialogConfig({
+        open: true,
         title: "Question Added...",
-        html: `<h5>question has been added successfully</h5>`,
-        footer: `<a href="">Why do I have this issue?</a>`,
+        message: "The question has been added successfully.",
+        alertType: "success",
+        footer: { text: "Why do I have this issue?", link: "#" },
       });
     }
   };
+
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <React.Fragment>
       <Header />
       <Container>
         <CssBaseline />
@@ -159,95 +107,95 @@ export default function AddExam() {
                   ADD NEW QUESTION TO TESTBANK!
                 </Typography>
               </Grid>
-              <Box component="form" onSubmit={handleSubmit}>
-                <CssTextField
+              <Box
+                component="form"
+                width={"100%"}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1em",
+                }}
+                onSubmit={handleSubmit}
+              >
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="grade"
                   label="Question Grade"
                   name="grade"
-                  autoComplete="grade"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="skill"
                   label="Question Skill"
                   name="skill"
-                  autoComplete="skill"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="kpiNumber"
                   label="Question KPI Number"
                   name="kpiNumber"
-                  autoComplete="kpiNumber"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="level"
                   label="Question Level"
                   name="level"
-                  autoComplete="level"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="text"
                   label="Question Text"
                   name="text"
-                  autoComplete="text"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="choice1"
                   label="Question First Choice"
                   name="choice1"
-                  autoComplete="choice1"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="choice2"
                   label="Question Second Choice"
                   name="choice2"
-                  autoComplete="choice2"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="choice3"
                   label="Question Third Choice"
                   name="choice3"
-                  autoComplete="choice3"
                   autoFocus
                 />
-                <CssTextField
+                <TextField
                   margin="normal"
                   required
                   fullWidth
                   id="correctChoice"
                   label="Question Correct Choice"
                   name="correctChoice"
-                  autoComplete="choice1"
                   autoFocus
                 />
                 <Button
@@ -263,8 +211,9 @@ export default function AddExam() {
             </Box>
           </Grid>
         </Grid>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright mt={8} mb={4} />
       </Container>
-    </ThemeProvider>
+      <AlertDialog {...dialogConfig} onClose={handleDialogClose} />
+    </React.Fragment>
   );
 }
